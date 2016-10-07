@@ -38,9 +38,10 @@
                     // get the cached target
                     var target = xhr._cachedTarget[item.id];
                     // ensure the cached target
-                    target || (target = xhr._cachedTarget[item.id] = cachedDocument.getElementById(item.id)), 
+                    target || (target = xhr._cachedTarget[item.id] = cachedDocument.getElementById(item.id));
                     // embed the target into the svg
-                    embed(item.svg, target);
+                    var svg = item.use.parentNode;
+                    svg.removeChild(item.use), embed(svg, target);
                 });
             }
         }, // test the ready state change immediately
@@ -67,24 +68,28 @@
                         svg.replaceChild(img, use);
                     } else {
                         if (polyfill && (!opts.validate || opts.validate(src, svg, use))) {
-                            // remove the <use> element
-                            svg.removeChild(use);
                             // parse the src and get the url and id
                             var srcSplit = src.split("#"), url = srcSplit.shift(), id = srcSplit.join("#");
                             // if the link is external
                             if (url.length) {
+                                ++index;
                                 // get the cached xhr request
                                 var xhr = requests[url];
                                 // ensure the xhr request exists
                                 xhr || (xhr = requests[url] = new XMLHttpRequest(), xhr.open("GET", url), xhr.send(), 
-                                xhr._embeds = []), // add the svg and id as an item to the xhr embeds list
+                                xhr._embeds = []);
+                                var reservedUse = xhr._embeds.map(function(item) {
+                                    return item.use;
+                                });
+                                reservedUse.indexOf(use) < 0 && (// add the svg and id as an item to the xhr embeds list
                                 xhr._embeds.push({
-                                    svg: svg,
+                                    use: use,
                                     id: id
                                 }), // prepare the xhr ready state change event
-                                loadreadystatechange(xhr);
+                                loadreadystatechange(xhr));
                             } else {
-                                // embed the local id into the svg
+                                // remove the <use> element
+                                svg.removeChild(use), // embed the local id into the svg
                                 embed(svg, document.getElementById(id));
                             }
                         }
