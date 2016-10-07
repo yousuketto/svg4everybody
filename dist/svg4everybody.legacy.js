@@ -24,6 +24,12 @@
             svg.appendChild(fragment);
         }
     }
+    function replace(use, target) {
+        var svg = use.parentNode;
+        // remove the <use> element
+        svg.removeChild(use), // embed the target into the svg
+        embed(svg, target);
+    }
     function loadreadystatechange(xhr) {
         // listen to changes in the request
         xhr.onreadystatechange = function() {
@@ -38,10 +44,8 @@
                     // get the cached target
                     var target = xhr._cachedTarget[item.id];
                     // ensure the cached target
-                    target || (target = xhr._cachedTarget[item.id] = cachedDocument.getElementById(item.id));
-                    // embed the target into the svg
-                    var svg = item.use.parentNode;
-                    svg.removeChild(item.use), embed(svg, target);
+                    target || (target = xhr._cachedTarget[item.id] = cachedDocument.getElementById(item.id)), 
+                    replace(item.use, target);
                 });
             }
         }, // test the ready state change immediately
@@ -88,9 +92,7 @@
                                 }), // prepare the xhr ready state change event
                                 loadreadystatechange(xhr));
                             } else {
-                                // remove the <use> element
-                                svg.removeChild(use), // embed the local id into the svg
-                                embed(svg, document.getElementById(id));
+                                replace(use, document.getElementById(id));
                             }
                         }
                     }
