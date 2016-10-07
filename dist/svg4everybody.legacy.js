@@ -8,9 +8,10 @@
     module.exports = factory() : root.svg4everybody = factory();
 }(this, function() {
     /*! svg4everybody v2.1.0 | github.com/jonathantneal/svg4everybody */
-    function embed(svg, target) {
+    function replace(use, target) {
+        var svg = use.parentNode;
         // if the target exists
-        if (target) {
+        if (svg.removeChild(use), target) {
             // create a document fragment to hold the contents of the target
             var fragment = document.createDocumentFragment(), viewBox = !svg.getAttribute("viewBox") && target.getAttribute("viewBox");
             // conditionally set the viewBox on the svg
@@ -23,12 +24,6 @@
             // append the fragment into the svg
             svg.appendChild(fragment);
         }
-    }
-    function replace(use, target) {
-        var svg = use.parentNode;
-        // remove the <use> element
-        svg.removeChild(use), // embed the target into the svg
-        embed(svg, target);
     }
     function loadreadystatechange(xhr) {
         // listen to changes in the request
